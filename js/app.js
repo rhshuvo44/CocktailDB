@@ -6,30 +6,38 @@ const getApi=()=>{
     }
 getApi();
 
+    const loading = displayStyle => document.getElementById('loading').style.display=displayStyle;
 // input search 
 
 const search=()=>{
     const searchInput =document.getElementById('search-flid').value;
     const url=`https://www.thecocktaildb.com/api/json/v1/1/search.php?s=${searchInput}`;
+    document.getElementById('error1').style.display='none';
 
+    loading('block');
     if (searchInput === '') {
         const searchResultCard = document.getElementById('search-result');
-    searchResultCard.innerHTML = '';
+        searchResultCard.innerHTML = '';
+        loading('none');
         document.getElementById('error1').style.display='block';
-    document.getElementById('error2').style.display='none';
+        document.getElementById('error2').style.display='none';
     }else{
         fetch(url)
         .then(res=>res.json())
-        .then(data =>searchResult(data));
-        const searchResultCard = document.getElementById('search-result');
-        searchResultCard.innerHTML = '';
-        document.getElementById('error2').style.display='block';
-        document.getElementById('error1').style.display='none';
+        .then(data =>searchResult(data))
+        .catch(err=>{
+            document.getElementById('error2').style.display='block';
+            document.getElementById('error1').style.display='none';
+            loading('none');
+
+        })
+        
     }
 }
+// search result
 const searchResult =(data)=>{
     const searchResultCard = document.getElementById('search-result');
-    searchResultCard.innerHTML = ''
+    searchResultCard.innerHTML = '';
     const drinks = data.drinks;
     drinks.forEach(element => {
         const div = document.createElement('div');
@@ -53,10 +61,16 @@ const searchResult =(data)=>{
         searchResultCard.appendChild(div);
 
     });
+    loading('none');
+    
     document.getElementById('error2').style.display='none';
+    document.getElementById('error1').style.display='none';
+
 
 }
 
+
+///modal 
 const singleData =(idDrink)=>{
     const url =`https://www.thecocktaildb.com/api/json/v1/1/lookup.php?i=${idDrink}`
     fetch(url)
@@ -80,7 +94,10 @@ const loadData =(data)=>{
                 aria-label="Close"
               ></button>
             </div>
-            <div class="modal-body">${drink.strInstructions}</div>
+            <div class="modal-body">
+            <img src="${drink.strDrinkThumb}" class="card-img-top" alt="..." />
+            <p>${drink.strInstructions}</p>
+            </div>
           </div>
     `;
     single.appendChild(div)
